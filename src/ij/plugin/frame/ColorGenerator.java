@@ -4,11 +4,8 @@ import java.awt.Color;
 import ij.gui.Toolbar;
 import ij.process.ColorProcessor;
 
-class ColorGenerator extends ColorProcessor {
-	private int ybase = ColorPicker.ybase;
+class ColorGenerator extends ColorProcessor implements ColorI {
     private int w, h;
-    private int[] colors = {0xff0000, 0x00ff00, 0x0000ff, 0xffffff, 0x00ffff, 0xff00ff, 0xffff00, 0x000000};
-
     public ColorGenerator(int width, int height, int[] pixels) {
         super(width, height, pixels);
         setAntialiasedText(true);

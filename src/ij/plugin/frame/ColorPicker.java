@@ -17,8 +17,7 @@ import ij.gui.Toolbar;
 import ij.plugin.Colors;
 
 /** Implements the Image/Color/Color Picker command. */
-public class ColorPicker extends PlugInDialog {
-	public static int ybase = 2;
+public class ColorPicker extends PlugInDialog implements ColorI {
 	private int colorWidth = 22;
 	private int colorHeight = 16;
 	private int columns = 5;

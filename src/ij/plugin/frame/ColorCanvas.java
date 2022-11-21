@@ -15,10 +15,9 @@ import ij.gui.ColorChooser;
 import ij.gui.Toolbar;
 import ij.plugin.Colors;
 
-class ColorCanvas extends Canvas implements MouseListener, MouseMotionListener {
+class ColorCanvas extends Canvas implements MouseListener, MouseMotionListener, ColorI {
 	private static Cursor defaultCursor;
 	private static Cursor crosshairCursor;
-	int ybase = ColorPicker.ybase;
 	Rectangle flipperRect = new Rectangle(86, ybase+268, 18, 18);
 	Rectangle resetRect = new Rectangle(84, ybase+293, 21, 18);
 	Rectangle foreground1Rect = new Rectangle(9, ybase+266, 45, 10);
@@ -39,8 +38,8 @@ class ColorCanvas extends Canvas implements MouseListener, MouseMotionListener {
 		this.width=width; this.height=height;
 		this.ip = ip;
 		this.cp = cp;
-		this.defaultCursor = defaultCursor;
-		this.crosshairCursor = crosshairCursor;
+		ColorCanvas.defaultCursor = defaultCursor;
+		ColorCanvas.crosshairCursor = crosshairCursor;
 		addMouseListener(this);
  		addMouseMotionListener(this);
         addKeyListener(IJ.getInstance());
@@ -61,7 +60,6 @@ class ColorCanvas extends Canvas implements MouseListener, MouseMotionListener {
 	}
 
 	public void mousePressed(MouseEvent e) {
-		//IJ.log("mousePressed "+e);
 		ip.setLineWidth(1);
 		if (Toolbar.getToolId()==Toolbar.DROPPER)
 			IJ.setTool(Toolbar.RECTANGLE );
