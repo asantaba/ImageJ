@@ -75,7 +75,7 @@ public class EDM implements ExtendedPlugInFilter {
     private int outImageType;           //output type; BYTE_OVERWRITE, BYTE, SHORT or FLOAT
     private ImageStack outStack;        //in case output should be a new stack
     private int processType;            //can be EDM, WATERSHED, UEP, VORONOI
-    private MaximumFinder maxFinder = new MaximumFinder();    //we use only one MaximumFinder (nice progress bar)
+    private MaximumFinder maxFinder;    //we use only one MaximumFinder (nice progress bar)
     private double progressDone;        //for progress bar, fraction of work done so far
     private int nPasses;                //for progress bar, how many images to process (sequentially or parallel threads)
     private boolean interrupted;        //whether watershed segmentation has been interrrupted by the user
@@ -98,6 +98,10 @@ public class EDM implements ExtendedPlugInFilter {
                                     //segmentation is more aggressive with smaller values
     /** Output type (BYTE_OVERWRITE, BYTE, SHORT or FLOAT) */
     private static int outputType = BYTE_OVERWRITE;
+    
+    public EDM(MaximumFinder maxFinder){
+    	this.maxFinder = maxFinder;
+    }
 
     /** Prepare for processing; also called at the very end with argument 'final'
      *  to show any newly created output image.

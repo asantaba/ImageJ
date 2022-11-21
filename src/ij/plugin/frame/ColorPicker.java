@@ -20,6 +20,8 @@ public class ColorPicker extends PlugInDialog {
 	private ColorGenerator cg; 
 	private Canvas colorCanvas;
 	TextField colorField;
+	private static Cursor defaultCursor = new Cursor(Cursor.DEFAULT_CURSOR);
+	private static Cursor crosshairCursor = new Cursor(Cursor.CROSSHAIR_CURSOR);
 	
     public ColorPicker() {
 		super("CP");
@@ -36,7 +38,7 @@ public class ColorPicker extends PlugInDialog {
 		setLayout(new BorderLayout());
 		cg = new ColorGenerator(width, height, new int[width*height]);
         cg.drawColors(colorWidth, colorHeight, columns, rows);
-        colorCanvas = new ColorCanvas(width, height, this, cg, scale);
+        colorCanvas = new ColorCanvas(width, height, this, cg, scale, defaultCursor, crosshairCursor);
         Panel panel = new Panel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.add(colorCanvas);
@@ -235,8 +237,8 @@ class ColorGenerator extends ColorProcessor {
 } 
 
 class ColorCanvas extends Canvas implements MouseListener, MouseMotionListener {
-	private static Cursor defaultCursor = new Cursor(Cursor.DEFAULT_CURSOR);
-	private static Cursor crosshairCursor = new Cursor(Cursor.CROSSHAIR_CURSOR);
+	private static Cursor defaultCursor;
+	private static Cursor crosshairCursor;
 	int ybase = ColorPicker.ybase;
 	Rectangle flipperRect = new Rectangle(86, ybase+268, 18, 18);
 	Rectangle resetRect = new Rectangle(84, ybase+293, 21, 18);
@@ -253,10 +255,13 @@ class ColorCanvas extends Canvas implements MouseListener, MouseMotionListener {
 	double scale;
 	String status = "";
 			
-	public ColorCanvas(int width, int height, ColorPicker cp, ColorGenerator ip, double scale) {
+	public ColorCanvas(int width, int height, ColorPicker cp, ColorGenerator ip, double scale, Cursor defaultCursor,
+			Cursor crosshairCursor) {
 		this.width=width; this.height=height;
 		this.ip = ip;
 		this.cp = cp;
+		this.defaultCursor = defaultCursor;
+		this.crosshairCursor = crosshairCursor;
 		addMouseListener(this);
  		addMouseMotionListener(this);
         addKeyListener(IJ.getInstance());

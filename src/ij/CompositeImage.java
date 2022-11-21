@@ -1,11 +1,24 @@
 package ij;
-import ij.process.*;
-import ij.gui.*;
-import ij.plugin.*;
-import ij.plugin.frame.*;
+import java.awt.Color;
+import java.awt.Image;
+import java.awt.Toolkit;
+import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
+import java.awt.image.DataBuffer;
+import java.awt.image.DataBufferInt;
+import java.awt.image.DirectColorModel;
+import java.awt.image.IndexColorModel;
+import java.awt.image.MemoryImageSource;
+import java.awt.image.Raster;
+import java.awt.image.SampleModel;
+import java.awt.image.WritableRaster;
+
 import ij.io.FileInfo;
-import java.awt.*;
-import java.awt.image.*;
+import ij.plugin.frame.Channels;
+import ij.plugin.frame.ContrastAdjuster;
+import ij.process.ColorProcessor;
+import ij.process.ImageProcessor;
+import ij.process.LUT;
 
 public class CompositeImage extends ImagePlus {
 
@@ -57,9 +70,9 @@ public class CompositeImage extends ImagePlus {
 		} else
 			stack2 = imp.getImageStack();
 		int stackSize = stack2.getSize();
-		if (channels==1 && isRGB)
+		if (isFirstChannelAndIsRGB(channels, isRGB))
 			channels = 3;
-		if (channels==1 && stackSize<=MAX_CHANNELS && !imp.dimensionsSet)
+		if (isFirstChannelAndStackSizeLessThanOrEqualMaxChannelsAndImpNotDimensionsSet(imp, channels, stackSize))
 			channels = stackSize;
 		if (channels<1 || (stackSize%channels)!=0)
 			throw new IllegalArgumentException("stacksize not multiple of channels");
@@ -89,11 +102,20 @@ public class CompositeImage extends ImagePlus {
 				active[i] = true;
 		} else
 			active[0] = true;
-		//if (!(channels==3&&stackSize==3))
+
 		setRoi(imp.getRoi());
 		setOverlay(imp.getOverlay());
 		if (channels!=stackSize)
 			setOpenAsHyperStack(true);
+	}
+
+	private boolean isFirstChannelAndStackSizeLessThanOrEqualMaxChannelsAndImpNotDimensionsSet(ImagePlus imp,
+			int channels, int stackSize) {
+		return channels==1 && stackSize<=MAX_CHANNELS && !imp.dimensionsSet;
+	}
+
+	private boolean isFirstChannelAndIsRGB(int channels, boolean isRGB) {
+		return channels==1 && isRGB;
 	}
 
 	@Override
@@ -201,10 +223,8 @@ public class CompositeImage extends ImagePlus {
 	public synchronized void updateImage() {
 		int imageSize = width*height;
 		int nChannels = getNChannels();
-		int redValue, greenValue, blueValue;
 		int ch = getChannel();
 		
-		//IJ.log("updateImage: "+ch+"/"+nChannels+" "+currentSlice+" "+currentFrame);
 		if (ch>nChannels) ch = nChannels;
 		boolean newChannel = false;
 		if (ch-1!=currentChannel) {
@@ -316,16 +336,24 @@ public class CompositeImage extends ImagePlus {
 				for (int i=1; i<imageSize; i++)
 					rgbPixels[i] = fill;
 			}
-			if (cip==null || nChannels>cip.length)
+			if (verifyCipIsNullOrCpisChannelsMinor(nChannels))
 				return;
 			for (int i=1; i<nChannels; i++)
 				if (active[i]) cip[i].updateComposite(rgbPixels, projectionMode);
 		}
 		if (IJ.debugMode) IJ.log(""+(System.nanoTime()-t0)/1000L);
 		createBufferedImage();
-		if (img==null && awtImage!=null)
+		if (verifyImgIsNullAndAwtImageNotNull())
 			img = awtImage;
 		singleChannel = false;
+	}
+
+	private boolean verifyImgIsNullAndAwtImageNotNull() {
+		return img==null && awtImage!=null;
+	}
+
+	private boolean verifyCipIsNullOrCpisChannelsMinor(int nChannels) {
+		return cip==null || nChannels>cip.length;
 	}		
     
 	// Creates multi-channel composite view with inverted LUTs
@@ -495,7 +523,7 @@ public class CompositeImage extends ImagePlus {
 	}
 
 	public ImageProcessor getProcessor(int channel) {
-		if (cip==null || channel>cip.length)
+		if (verifyCipIsNullOrCpisChannelsMinor(channel))
 			return null;
 		else
 			return cip[channel-1];

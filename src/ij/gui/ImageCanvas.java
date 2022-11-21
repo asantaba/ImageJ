@@ -23,10 +23,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /** This is a Canvas used to display images in a Window. */
 public class ImageCanvas extends Canvas implements MouseListener, MouseMotionListener, Cloneable {
 
-	protected static Cursor defaultCursor = new Cursor(Cursor.DEFAULT_CURSOR);
-	protected static Cursor handCursor = new Cursor(Cursor.HAND_CURSOR);
-	protected static Cursor moveCursor = new Cursor(Cursor.MOVE_CURSOR);
-	protected static Cursor crosshairCursor = new Cursor(Cursor.CROSSHAIR_CURSOR);
+	protected static Cursor defaultCursor;
+	protected static Cursor handCursor;
+	protected static Cursor moveCursor;
+	protected static Cursor crosshairCursor;
 
 	public static boolean usePointer = Prefs.usePointerCursor;
 
@@ -93,6 +93,33 @@ public class ImageCanvas extends Canvas implements MouseListener, MouseMotionLis
 		
 	public ImageCanvas(ImagePlus imp) {
 		this.imp = imp;
+		this.defaultCursor = new Cursor(Cursor.DEFAULT_CURSOR);
+		this.handCursor = new Cursor(Cursor.HAND_CURSOR);
+		this.moveCursor = new Cursor(Cursor.MOVE_CURSOR);
+		this.crosshairCursor = new Cursor(Cursor.CROSSHAIR_CURSOR);
+		paintPending = new AtomicBoolean(false);
+		ij = IJ.getInstance();
+		int width = imp.getWidth();
+		int height = imp.getHeight();
+		imageWidth = width;
+		imageHeight = height;
+		srcRect = new Rectangle(0, 0, imageWidth, imageHeight);
+		setSize(imageWidth, imageHeight);
+		magnification = 1.0;
+ 		addMouseListener(this);
+ 		addMouseMotionListener(this);
+ 		addKeyListener(ij);  // ImageJ handles keyboard shortcuts
+ 		setFocusTraversalKeysEnabled(false);
+		//setScaleToFit(true);
+	}
+	
+	public ImageCanvas(ImagePlus imp, Cursor defaultCursor, Cursor handCursor, Cursor moveCursor, 
+			Cursor crosshairCursor) {
+		this.imp = imp;
+		this.defaultCursor = defaultCursor;
+		this.handCursor = handCursor;
+		this.moveCursor = moveCursor;
+		this.crosshairCursor = crosshairCursor;
 		paintPending = new AtomicBoolean(false);
 		ij = IJ.getInstance();
 		int width = imp.getWidth();

@@ -4,6 +4,7 @@ import ij.process.*;
 import ij.gui.*;
 import ij.measure.Calibration;
 import ij.plugin.filter.EDM;
+import ij.plugin.filter.MaximumFinder;
 import ij.plugin.filter.ThresholdToSelection;
 import ij.plugin.frame.Recorder;
 import java.awt.*;
@@ -17,6 +18,7 @@ public class RoiEnlarger implements PlugIn, DialogListener {
 	private boolean defaultUsePixels = Prefs.get(USE_PIXELS_KEY, false);
 	private Calibration cal;
 	private Label unitsLabel;
+	private static MaximumFinder maxFinder = new MaximumFinder();
 
 	public void run(String arg) {
 		ImagePlus imp = IJ.getImage();
@@ -158,7 +160,7 @@ public class RoiEnlarger implements PlugIn, DialogListener {
 		int xoffset = bounds2.x - (n+1);
 		int yoffset = bounds2.y - (n+1);
 		roi.setLocation(bounds.x, bounds.y);
-		FloatProcessor edm = new EDM().makeFloatEDM (ip, 0, false);
+		FloatProcessor edm = new EDM(maxFinder).makeFloatEDM (ip, 0, false);
 		edm.setThreshold(0, n, ImageProcessor.NO_LUT_UPDATE);
 		roi2 = (new ThresholdToSelection()).convert(edm);
 		if (roi2==null)
@@ -196,7 +198,7 @@ public class RoiEnlarger implements PlugIn, DialogListener {
 		ip.setColor(255);
 		ip.fill(roi);
 		roi.setLocation(bounds.x, bounds.y);
-		FloatProcessor edm = new EDM().makeFloatEDM (ip, 0, false);
+		FloatProcessor edm = new EDM(maxFinder).makeFloatEDM (ip, 0, false);
 		edm.setThreshold(n+1, Float.MAX_VALUE, ImageProcessor.NO_LUT_UPDATE);
 		Roi roi2 = (new ThresholdToSelection()).convert(edm);
 		if (roi2==null)
@@ -236,7 +238,7 @@ public class RoiEnlarger implements PlugIn, DialogListener {
 		roi.setLocation(bounds.x, bounds.y);
 		boolean bb = Prefs.blackBackground;
 		Prefs.blackBackground = true;
-		new EDM().toEDM(ip);
+		new EDM(maxFinder).toEDM(ip);
 		Prefs.blackBackground = bb;
 		ip.setThreshold(0, n, ImageProcessor.NO_LUT_UPDATE);
 		roi2 = (new ThresholdToSelection()).convert(ip);
@@ -260,7 +262,7 @@ public class RoiEnlarger implements PlugIn, DialogListener {
 		roi.setLocation(bounds.x, bounds.y);
 		boolean bb = Prefs.blackBackground;
 		Prefs.blackBackground = true;
-		new EDM().toEDM(ip);
+		new EDM(maxFinder).toEDM(ip);
 		Prefs.blackBackground = bb;
 		ip.setThreshold(n+1, 255, ImageProcessor.NO_LUT_UPDATE);
 		Roi roi2 = (new ThresholdToSelection()).convert(ip);
